@@ -1,0 +1,4 @@
+data/
+target/
+.ensime/
+.ensime_cache/
