@@ -22,7 +22,7 @@ object Exploring {
     // can split up the data by line
     val userFields = userData.map(line => line.split("\\|"))
 
-    val numUsers = userFields.map(fields => fields(0)).count
+    val numUsers = userFields.map(fields => fields(0)).count     // <- warning! array!
     println(s"number of users: $numUsers")
 
     val numGenders = userFields.map(fields => fields(2)).distinct.count
@@ -35,9 +35,25 @@ object Exploring {
 
     // this looks a bit shit, but at least it appears
     val f = Figure()
-    val histo = f.subplot(2, 1, 1)
-    histo += hist(ages)
-    histo.title = "no idea if this will work"
-    f.saveas("subplots.png")
+    val histo = f.subplot(2,1,1)
+    histo += hist(ages, 20, "ages")
+    histo.title = "Age distribution of example data"
+    f.saveas("ages.png")
+
+
+    // note: collect() doesn't return in a specific order
+    val countByOccupation = userFields.map(f => (f(3), 1)).reduceByKey(_ + _).collect
+
+    val occupations: Array[String] = countByOccupation.map{ case (x, y) => x }
+    val counts: Array[Int] = countByOccupation.map{ case (x, y) => y }
+
+    val z = occupations zip counts
+
+    val orderedZ = z.sortBy(_._2)
+
+    val xAxis1 = orderedZ.map{ case (x, y) => x }
+    val yAxis1 = orderedZ.map{ case (x, y) => y }
+
+    
   }
 }
