@@ -2,9 +2,7 @@ package exploring
 
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
-
-import breeze.linalg._
-import breeze.plot._
+import com.quantifind.charts.Highcharts._
 
 /**
   * To run this just use `sbt run` - there is a bug in sbt (I think) when you use `run` where it doesn't shut something
@@ -33,13 +31,9 @@ object Exploring {
 
     val ages = userFields.map(f => f(1).toInt).collect
 
-    // this looks a bit shit, but at least it appears
-    val f = Figure()
-    val histo = f.subplot(2,1,1)
-    histo += hist(ages, 20, "ages")
-    histo.title = "Age distribution of example data"
-    f.saveas("ages.png")
 
+    histogram(ages, 20)
+    title("Ages")
 
     // note: collect() doesn't return in a specific order
     val countByOccupation = userFields.map(f => (f(3), 1)).reduceByKey(_ + _).collect
@@ -53,6 +47,7 @@ object Exploring {
 
     val xAxis1 = orderedZ.map{ case (x, y) => x }
     val yAxis1 = orderedZ.map{ case (x, y) => y }
+
 
     
   }
