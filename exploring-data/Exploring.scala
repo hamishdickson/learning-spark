@@ -4,6 +4,8 @@ import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
 import com.quantifind.charts.Highcharts._
 
+import scala.util.{Try,Success,Failure}
+
 /**
   * To run this just use `sbt run` - there is a bug in sbt (I think) when you use `run` where it doesn't shut something
   *  down and it kills your pc. I'm using 3rd party deps here for the charts, so sending it to spark is a pain
@@ -31,7 +33,6 @@ object Exploring {
 
     val ages = userFields.map(f => f(1).toInt).collect
 
-
     histogram(ages, 20)
     title("Ages")
 
@@ -48,7 +49,39 @@ object Exploring {
     val xAxis1 = orderedZ.map{ case (x, y) => x }
     val yAxis1 = orderedZ.map{ case (x, y) => y }
 
+    bar(yAxis1.toList)
 
-    
+    val countByOccupation2 = userFields.map(f => f(3)).countByValue()
+    println(s"map reduce appoach $countByOccupation2")
+    println(s"count by value approach $countByOccupation")
+
+
+    val movieData = sc.textFile("../data/ml-100k/u.item")
+    println(movieData.first())
+
+    val numMovies = movieData.count()
+    println(s"number of movies: $numMovies")
+
+    // turns out there is some bad data in here, lets clean it up
+    def convertYear(y: String): Int = {
+      val result = Try(y.toInt)
+
+      result match {
+        case Success(v) => v
+        case Failure(_) => 1900 // just assign 1900
+      }
+    }
+
+    val movieFields = movieData.map(lines => lines.split(("\\|")))
+    val years = movieFields.map(f => f(2)).map(convertYear)
+
+    val yearsFiltered = years.filter(x => x != 1900)
+
+    val movieAges = yearsFiltered.map(1998 - _).countByValue()
+
+    val values = movieAges.values
+    val bins = movieAges.keys
+
+    histogram(values, bins.size)
   }
 }
