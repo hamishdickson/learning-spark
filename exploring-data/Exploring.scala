@@ -57,14 +57,13 @@ object Exploring {
 
 
     val movieData = sc.textFile("../data/ml-100k/u.item")
-    println(movieData.first())
 
     val numMovies = movieData.count()
-    println(s"number of movies: $numMovies")
 
     // turns out there is some bad data in here, lets clean it up
     def convertYear(y: String): Int = {
-      val result = Try(y.toInt)
+      val year = y.split("-")
+      val result = Try(year(2).toInt)
 
       result match {
         case Success(v) => v
@@ -73,15 +72,22 @@ object Exploring {
     }
 
     val movieFields = movieData.map(lines => lines.split(("\\|")))
-    val years = movieFields.map(f => f(2)).map(convertYear)
 
-    val yearsFiltered = years.filter(x => x != 1900)
+    val years = movieFields.map(f => convertYear(f(2)))
 
-    val movieAges = yearsFiltered.map(1998 - _).countByValue()
+    val yearsFiltered = years.filter(_ != 1900)
+
+    val movieAges = years.map(1998 - _).countByValue()
 
     val values = movieAges.values
     val bins = movieAges.keys
 
-    histogram(values, bins.size)
+    histogram(values, 40) // guh - can't get this to work
+
+    val ratingData = sc.textFile("../data/ml-100k/u.data")
+    println(ratingData.first())
+
+    val numRatings = ratingData.count()
+    println(s"Ratings $numRatings")
   }
 }
