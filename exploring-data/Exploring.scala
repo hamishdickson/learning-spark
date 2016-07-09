@@ -12,7 +12,7 @@ import scala.util.{Try,Success,Failure}
   *  because it needs those jars (it's doable... but it's easier to do sbt run...)
   */
 object Exploring {
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     val sc = new SparkContext("local[2]", "exploring-data")
 
     val userData = sc.textFile("../data/ml-100k/u.user")
