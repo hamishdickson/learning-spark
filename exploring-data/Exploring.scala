@@ -1,7 +1,6 @@
 package exploring
 
 import org.apache.spark.SparkContext
-import org.apache.spark.SparkContext._
 import com.quantifind.charts.Highcharts._
 
 import scala.util.{Try,Success,Failure}
@@ -84,10 +83,25 @@ object Exploring {
 
     histogram(values, 40) // guh - can't get this to work
 
-    val ratingData = sc.textFile("../data/ml-100k/u.data")
-    println(ratingData.first())
+    val ratingDataRaw = sc.textFile("../data/ml-100k/u.data")
+    println(ratingDataRaw.first())
 
-    val numRatings = ratingData.count()
+    val numRatings = ratingDataRaw.count()
     println(s"Ratings $numRatings")
+
+    // annoyingly, this is tab separated
+    val ratingData = ratingDataRaw.map(_.split("""\t"""))
+    val ratings = ratingData.map(_(2).toInt)
+    val maxRating = ratings.reduce(_ max _)
+    val minRating = ratings.reduce(_ min _)
+    val meanRating = ratings.reduce(_ + _) / numRatings
+
+    val ratingsPerUser = numRatings / numUsers
+    val ratingsPerMovie = numRatings / numMovies
+
+    // this is cool - gives basically all these stats anyway
+    println(ratings.stats())
+
+
   }
 }
