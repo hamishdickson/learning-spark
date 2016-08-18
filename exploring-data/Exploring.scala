@@ -103,5 +103,7 @@ object Exploring {
     println(ratings.stats())
 
 
+    val userRatingsGrouped = ratingData.map(f => (f(0), f(2))).groupByKey()
+    val userRatingsByUser = userRatingsGrouped.map((k,v) => (k,v.length))
   }
 }
