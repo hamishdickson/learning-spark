@@ -35,5 +35,16 @@ object Recommender {
     val movies = sc.textFile("../data/ml-100k/u.item")
 
     val titles = movies.map(l => l.split("\\|").take(2)).map(a => (a(0).toInt, a(1))).collectAsMap()
+
+    // so what ratings has 789 made?
+    val moviesForUser = ratings.keyBy(_.user).lookup(789)
+
+    println(moviesForUser.size) // number of ratings user has made
+
+    // top rated movies
+    moviesForUser.sortBy(-_.rating).take(10).map(r => (titles(r.product), r.rating)).foreach(println)
+
+    // top 10 recs for this user...
+    topKRecs.map(r => (titles(r.product), r.rating)).foreach(println)
   }
 }
